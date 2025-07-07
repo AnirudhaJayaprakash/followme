@@ -5,6 +5,7 @@ import numpy as np
 from torchreid.utils import FeatureExtractor
 from sklearn.metrics.pairwise import cosine_similarity
 from ultralytics import YOLO
+import os
 # Load OSNet ReID model
 extractor = FeatureExtractor(
     model_name='osnet_x1_0',
@@ -15,16 +16,21 @@ person_detector = YOLO('yolov8n.pt')
 
 
 def scan_and_save_embedding():
-    cap = cv2.VideoCapture(0)
+
+
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    video_path = os.path.join(script_dir, "videos/Scan1.mp4")
+    cap = cv2.VideoCapture(video_path)
     embeddings = []
     frame_count = 0
     print("[INFO] Starting 10-second scan. Please stand in front of the camera.")
 
-    while frame_count < 100: 
+    while frame_count < 180: 
         ret, frame = cap.read()
+        print(frame)
         if not ret:
             break
-        results = person_detector(frame)
+        results = person_detector(frame,classes=[0],conf=0.7)
         boxes = results[0].boxes.xyxy.cpu().numpy() if results else []
 
         for box in boxes:
@@ -57,15 +63,18 @@ def scan_and_save_embedding():
     print("[INFO] Cyclist embedding saved as 'cyclist_embedding.npy'")
 
 def recognize():
-    cap = cv2.VideoCapture(0)
+    frame_count = 0
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    video_path = os.path.join(script_dir, "videos/Test1.mp4")
+    cap = cv2.VideoCapture(video_path)
     reference_embedding = np.load("cyclist_embedding.npy")
 
     print("[INFO] Recognizing... press 'q' to quit")
-    while True:
+    while frame_count < 200: 
         ret, frame = cap.read()
         if not ret:
             break
-        results = person_detector(frame)
+        results = person_detector(frame,classes=[0])
         boxes = results[0].boxes.xyxy.cpu().numpy() if results else []
 
         for box in boxes:
@@ -95,9 +104,11 @@ def recognize():
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+        frame_count += 1
 
     cap.release()
     cv2.destroyAllWindows()
 
 #scan_and_save_embedding()
+
 recognize()
