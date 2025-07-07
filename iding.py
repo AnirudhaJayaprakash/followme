@@ -31,8 +31,12 @@ def scan_and_save_embedding():
            color=(0,0,255)
            x1, y1, x2, y2 = map(int, box[:4])
            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+           person_crop=frame[y1:y2,x1:x2]
+           if person_crop.shape[0] == 0 or person_crop.shape[1] == 0:
+             continue
 
-        frame_resized = cv2.resize(frame, (128, 256))
+
+        frame_resized = cv2.resize(person_crop, (128, 256))
         frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
 
         emb = extractor(frame_rgb)
@@ -68,8 +72,11 @@ def recognize():
            color=(0,0,255)
            x1, y1, x2, y2 = map(int, box[:4])
            cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+           person_crop=frame[y1:y2,x1:x2]
+           if person_crop.shape[0] == 0 or person_crop.shape[1] == 0:
+             continue
 
-        frame_resized = cv2.resize(frame, (128, 256))
+        frame_resized = cv2.resize(person_crop, (128, 256))
         frame_rgb = cv2.cvtColor(frame_resized, cv2.COLOR_BGR2RGB)
 
         test_embedding = extractor(frame_rgb)
@@ -78,11 +85,11 @@ def recognize():
         label = f"Match Score: {score:.2f}"
         if score > 0.8:
             label += " - MATCH "
-            cv2.putText(frame,)
+
         else:
             label += " - NO MATCH "
 
-        cv2.putText(frame, label, (10, 30),
+        cv2.putText(person_crop, label, (10, 30),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
         cv2.imshow("Recognition", frame)
 
