@@ -74,5 +74,5 @@ Make sure the reference video clearly shows the person in consistent lighting an
 
 ---
 
-**Developed by: \[Your Name or Team]**
+**Developed by: \[Team Arjuna]**
 **Date:** July 2025
